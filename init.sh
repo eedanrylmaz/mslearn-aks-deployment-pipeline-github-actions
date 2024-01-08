@@ -13,12 +13,11 @@ az aks create \
   --resource-group $RESOURCE_GROUP_NAME \
   --name $AKS_NAME \
   --node-count 1 \
-  --max-count 40 \
   --enable-addons http_application_routing \
   --dns-name-prefix $AKS_NAME \
   --enable-managed-identity \
   --generate-ssh-keys \
-  --node-vm-size Standard_B2s \
+  --node-vm-size Standard_D2as_v4 \
   --network-plugin azure \
   --network-policy calico
   
