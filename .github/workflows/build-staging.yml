@@ -7,7 +7,6 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -31,3 +30,45 @@ jobs:
           context: .
           push: true
           tags: ${{secrets.ACR_NAME}}/contoso-website:latest
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: build # Will wait for the execution of the previous job
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout
+    steps:
+      - uses: actions/checkout@v2
+  
+      - name: Install Helm
+        uses: Azure/setup-helm@v3
+        with:
+          version: v3.3.1
+
+      - name: Azure Login
+        uses: Azure/login@v1.5.1
+        with:
+          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          
+      - name: Azure Kubernetes set context
+        uses: Azure/aks-set-context@v3
+        with:
+          resource-group: mslearn-gh-pipelines-27956
+          cluster-name: contoso-video
+          
+      - name: Run Helm Deploy
+        run: |
+          helm upgrade \
+            --install \
+            --create-namespace \
+            --atomic \
+            --wait \
+            --namespace staging \
+            contoso-website \
+            ./kubernetes/contoso-website \
+            --set image.repository=${{ secrets.ACR_NAME }} \
+            --set dns.name=${{ secrets.DNS_NAME }}
+          
+          
