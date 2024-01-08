@@ -27,7 +27,7 @@ jobs:
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5.1.0
-          with:
-            context: .
-              tag: ${{secrets.ACR_NAME}}/contoso-website:latest
-              push: true
+        with:
+          context: .
+          push: true
+          tags: ${{secrets.ACR_NAME}}/contoso-website:latest
