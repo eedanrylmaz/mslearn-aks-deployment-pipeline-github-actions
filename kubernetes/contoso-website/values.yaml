@@ -1,0 +1,7 @@
+image:
+  registry: contosocontainerregistry968
+  name: contoso-website
+  tag: latest
+
+dns:
+  name: 96b3b65f48b9425daefc.westeurope.aksapp.io
